@@ -121,11 +121,9 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
   <section id="result" class="card hide">
     <div class="score"><big id="sc"></big><b id="verdict"></b><div id="sub" style="color:var(--mu)"></div></div>
     <div class="acts">
-      <button class="btn" onclick="downloadBank()">دانلود بانک سوالات</button>
-      <button class="btn sec" onclick="copyBank()" id="cp">کپی بانک سوالات</button>
+      <a class="btn" id="dl" href="questions.json" target="_blank" rel="noopener" download style="text-decoration:none">دانلود بانک سوالات</a>
       <button class="btn sec" onclick="goHome()">بازگشت به منو</button>
     </div>
-    <div class="ad" data-slot="result"></div>
     <div id="rvbox">
       <div class="top"><b id="rvcount"></b></div>
       <div class="q" id="rvq"></div>
@@ -133,6 +131,7 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
       <div class="nav"><button class="btn sec" id="rvprev" onclick="goRv(-1)">قبلی</button><button class="btn" id="rvnext" onclick="goRv(1)">بعدی</button></div>
       <div class="grid" id="rvgrid"></div>
     </div>
+    <div class="ad" data-slot="result"></div>
   </section>
   </div>
   <div class="ad" data-slot="left"></div>
@@ -289,20 +288,10 @@ function drawReview(){
 }
 function goRv(d){ rv = Math.max(0, Math.min(qs.length-1, rv+d)); drawReview(); }
 
-function bankJSON(){ return JSON.stringify(BANK[cur] || [], null, 2); }
-
-function downloadBank(){
-  try{
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([bankJSON()], {type:'application/json'}));
-    a.download = cur + '-question-bank.json';
-    document.body.appendChild(a); a.click(); a.remove();
-  }catch(e){ copyBank(); }
-}
-function copyBank(){
-  try{ navigator.clipboard.writeText(bankJSON()).then(() => { $('cp').textContent = 'کپی شد ✓'; }); }catch(e){}
-}
-function goHome(){ $('cp').textContent = 'کپی بانک سوالات'; show('home'); }
+/* آدرس دکمه‌ی دانلود بانک سوالات؛ هر لینکی خواستی بگذار */
+const DOWNLOAD_URL = FILES.ICDL;
+$('dl').href = DOWNLOAD_URL;
+function goHome(){ show('home'); }
 
 window.addEventListener('beforeunload', e => { if(!$('exam').classList.contains('hide')){ e.preventDefault(); e.returnValue=''; } });
 </script>
