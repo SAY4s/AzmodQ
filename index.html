@@ -45,10 +45,13 @@ h2{margin:0 0 14px;font-size:1.1rem}
 .dot{width:32px;height:32px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;font-size:.8rem;cursor:pointer}
 .dot.done{background:var(--pr);color:#fff;border-color:var(--pr)}
 .dot.cur{outline:2px solid var(--pr2)}
-.score{text-align:center;padding:10px 0 18px}
-.score big{display:block;font-size:3rem;font-weight:800}
+.score{text-align:center;padding:0 0 8px;line-height:1.5}
+.score big{display:inline;font-size:1.4rem;font-weight:800;margin-left:8px}
+.score b{font-size:.95rem}
+.score div{font-size:.78rem}
 .pass{color:var(--ok)}.fail{color:var(--no)}
-.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.acts .btn{padding:5px 12px;font-size:.8rem;border-radius:10px}
 .rev{border:1px solid var(--bd);border-right:5px solid var(--no);border-radius:14px;padding:12px 14px;margin-bottom:10px}
 .rev.ok{border-right-color:var(--ok)}
 .rev p{margin:0 0 6px;font-weight:600;unicode-bidi:plaintext}
@@ -147,7 +150,7 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
    سوال‌ها از فایل questions.json کنار همین صفحه خوانده می‌شود
    (خروجی convert_questions.py). فرمت: [{ "q":"..", "o":[4 گزینه], "a":0 }, ...]
    توجه: صفحه باید از روی هاست (http) باز شود، نه مستقیم از file:// */
-const FILES = { ICDL: 'questions.json' };
+const FILES = { ICDL: 'questions.json', DIPLOMA: 'diploma.json', PYTHON: 'python.json' };
 const BANK = {};
 async function loadBank(course){
   if(BANK[course]) return BANK[course];
