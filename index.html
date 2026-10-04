@@ -90,6 +90,7 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
       <button class="course off" disabled><b>DIPLOMA</b><small>به‌زودی</small><br><span class="tag">غیرفعال</span></button>
       <button class="course off" disabled><b>PYTHON</b><small>به‌زودی</small><br><span class="tag">غیرفعال</span></button>
     </div>
+    <p id="err" class="r hide" style="text-align:center;margin:12px 0 0"></p>
     <div class="ad" data-slot="home"></div>
   </section>
 
@@ -133,20 +134,21 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
 
 <script>
 /* ================== بانک سوالات ==================
-   سوال‌های خودت را اینجا اضافه کن. فرمت هر سوال:
-   { q: "متن سوال", o: ["گزینه ۱","گزینه ۲","گزینه ۳","گزینه ۴"], a: 0 }
-   a = شماره گزینه درست (از ۰ شروع می‌شود)
-   هر بار ۴۰ سوال تصادفی از این لیست انتخاب می‌شود. */
-const BANK = {
-  ICDL: [
-    { q: "نمونه ۱: کدام یک از موارد زیر یک سیستم‌عامل است؟", o: ["Windows","Excel","Chrome","Word"], a: 0 },
-    { q: "نمونه ۲: کلید میانبر کپی کردن کدام است؟", o: ["Ctrl+V","Ctrl+C","Ctrl+X","Ctrl+Z"], a: 1 },
-    { q: "نمونه ۳: پسوند فایل‌های ورد کدام است؟", o: [".xlsx",".pptx",".docx",".pdf"], a: 2 },
-    { q: "نمونه ۴: RAM چه نوع حافظه‌ای است؟", o: ["دائمی","موقت","نوری","مغناطیسی"], a: 1 },
-    { q: "نمونه ۵: کدام یک ورودی (Input) است؟", o: ["مانیتور","چاپگر","صفحه‌کلید","بلندگو"], a: 2 },
-    { q: "نمونه ۶: کدام نرم‌افزار صفحه‌گسترده است؟", o: ["Excel","Paint","Notepad","Outlook"], a: 0 }
-  ]
-};
+   سوال‌ها از فایل questions.json کنار همین صفحه خوانده می‌شود
+   (خروجی convert_questions.py). فرمت: [{ "q":"..", "o":[4 گزینه], "a":0 }, ...]
+   توجه: صفحه باید از روی هاست (http) باز شود، نه مستقیم از file:// */
+const FILES = { ICDL: 'questions.json' };
+const BANK = {};
+async function loadBank(course){
+  if(BANK[course]) return BANK[course];
+  try{
+    const r = await fetch(FILES[course], { cache: 'no-store' });
+    if(!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    BANK[course] = (Array.isArray(d) ? d : d[course] || []).filter(x => x && x.q && Array.isArray(x.o) && x.o.length === 4 && x.a >= 0 && x.a < 4);
+  }catch(e){ return null; }
+  return BANK[course];
+}
 
 /* ================== تبلیغات ==================
    هر جایگاه یک لیست است؛ اگر بیش از یکی بگذاری هر ۵ ثانیه عوض می‌شود.
@@ -181,10 +183,15 @@ const show = id => ['home','exam','result'].forEach(s => $(s).classList.toggle('
 
 function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-function startExam(course){
+async function startExam(course){
   cur = course;
-  const bank = BANK[course] || [];
-  if(!bank.length){ alert('بانک سوالات خالی است.'); return; }
+  const bank = await loadBank(course);
+  const err = $('err');
+  if(!bank || !bank.length){
+    err.textContent = bank ? 'بانک سوالات خالی است.' : 'فایل ' + FILES[course] + ' پیدا نشد. آن را کنار این صفحه روی هاست بگذار.';
+    err.classList.remove('hide'); return;
+  }
+  err.classList.add('hide');
   qs = shuffle(bank).slice(0, EXAM_COUNT);
   ans = Array(qs.length).fill(null); idx = 0; left = EXAM_SECONDS;
   show('exam'); window.scrollTo(0,0); draw(); tick();
