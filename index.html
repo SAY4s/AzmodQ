@@ -55,6 +55,11 @@ h2{margin:0 0 14px;font-size:1.1rem}
 .rev div{font-size:.92rem;unicode-bidi:plaintext}
 .g{color:var(--ok)}.r{color:var(--no)}
 .hide{display:none}
+.opt.good{border-color:var(--ok);background:rgba(22,163,74,.13)}
+.opt.bad{border-color:var(--no);background:rgba(220,38,38,.12)}
+.dot.g{background:var(--ok);color:#fff;border-color:var(--ok)}
+.dot.b{background:var(--no);color:#fff;border-color:var(--no)}
+#rvopts .opt{cursor:default}
 .ad{margin:14px 0;border:1.5px dashed var(--bd);border-radius:16px;overflow:hidden;display:grid;place-items:center;color:var(--mu);font-size:.85rem;background:var(--card)}
 .ad[data-slot=exam]{aspect-ratio:6/1;min-height:60px}
 .ad[data-slot=home],.ad[data-slot=result]{aspect-ratio:16/6}
@@ -121,7 +126,13 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
       <button class="btn sec" onclick="goHome()">بازگشت به منو</button>
     </div>
     <div class="ad" data-slot="result"></div>
-    <div id="review"></div>
+    <div id="rvbox">
+      <div class="top"><b id="rvcount"></b></div>
+      <div class="q" id="rvq"></div>
+      <div id="rvopts"></div>
+      <div class="nav"><button class="btn sec" id="rvprev" onclick="goRv(-1)">قبلی</button><button class="btn" id="rvnext" onclick="goRv(1)">بعدی</button></div>
+      <div class="grid" id="rvgrid"></div>
+    </div>
   </section>
   </div>
   <div class="ad" data-slot="left"></div>
@@ -249,20 +260,34 @@ function finish(ask){
   $('verdict').textContent = passed ? 'قبول شدی 🎉' : 'متاسفانه قبول نشدی';
   $('verdict').className = passed ? 'pass' : 'fail';
   $('sub').textContent = 'حداقل نمره قبولی: ' + fa(need) + ' · غلط: ' + fa(qs.length-ok-blank) + ' · بی‌پاسخ: ' + fa(blank);
-  $('review').innerHTML = '';
-  qs.forEach((q,i) => {
-    const good = ans[i] === q.a, el = document.createElement('div');
-    el.className = 'rev' + (good ? ' ok' : '');
-    el.innerHTML = '<p></p><div class="y"></div>' + (good ? '' : '<div class="g c"></div>');
-    el.querySelector('p').textContent = fa(i+1) + '. ' + q.q;
-    const y = el.querySelector('.y');
-    y.className = good ? 'g' : 'r';
-    y.textContent = 'پاسخ تو: ' + (ans[i] === null ? 'بدون پاسخ' : q.o[ans[i]]);
-    if(!good) el.querySelector('.c').textContent = 'پاسخ درست: ' + q.o[q.a];
-    $('review').appendChild(el);
-  });
+  rv = 0; drawReview();
   show('result'); window.scrollTo(0,0);
 }
+
+let rv = 0;
+function drawReview(){
+  const q = qs[rv], u = ans[rv];
+  $('rvcount').textContent = 'مرور سوال ' + fa(rv+1) + ' از ' + fa(qs.length) + (u === null ? ' · بدون پاسخ' : u === q.a ? ' · درست ✓' : ' · غلط ✗');
+  $('rvq').textContent = q.q;
+  $('rvopts').innerHTML = '';
+  q.o.forEach((t,i) => {
+    const d = document.createElement('div');
+    d.className = 'opt' + (i === q.a ? ' good' : i === u ? ' bad' : '');
+    d.textContent = fa(i+1) + '. ' + t + (i === q.a ? '  ✓ پاسخ درست' : i === u ? '  ✗ پاسخ تو' : '');
+    $('rvopts').appendChild(d);
+  });
+  $('rvprev').disabled = rv === 0;
+  $('rvnext').disabled = rv === qs.length-1;
+  $('rvgrid').innerHTML = '';
+  qs.forEach((x,i) => {
+    const b = document.createElement('button');
+    b.className = 'dot' + (ans[i] === x.a ? ' g' : ans[i] === null ? '' : ' b') + (i === rv ? ' cur' : '');
+    b.textContent = fa(i+1);
+    b.onclick = () => { rv = i; drawReview(); };
+    $('rvgrid').appendChild(b);
+  });
+}
+function goRv(d){ rv = Math.max(0, Math.min(qs.length-1, rv+d)); drawReview(); }
 
 function bankJSON(){ return JSON.stringify(BANK[cur] || [], null, 2); }
 
