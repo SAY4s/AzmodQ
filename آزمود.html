@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>آزمود | آزمون چهارگزینه‌ای</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--mw:700px;--bg:#f5f6fb;--card:#fff;--tx:#1b1f3b;--mu:#6b7194;--pr:#5b4bff;--pr2:#8a5cff;--ok:#16a34a;--no:#dc2626;--bd:#e3e6f3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1226;--card:#191d3a;--tx:#eef0ff;--mu:#9aa0c8;--bd:#2a2f58}}
+:root[data-theme="dark"]{--bg:#0f1226;--card:#191d3a;--tx:#eef0ff;--mu:#9aa0c8;--bd:#2a2f58}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Vazirmatn,Tahoma,sans-serif;line-height:1.8}
+header{background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff;text-align:center;padding:14px 16px 32px;border-radius:0 0 24px 24px}
+.logo{width:40px;height:40px;margin:0 auto 4px;border:2px dashed rgba(255,255,255,.6);border-radius:12px;display:grid;place-items:center;font-size:8px;opacity:.9}
+header h1{margin:0;font-size:1.7rem;line-height:1.4;font-weight:800;letter-spacing:1px}
+header p{margin:0;opacity:.85;font-size:.85rem}
+main{--w:min(160px,calc((100vw - var(--mw))/2 - 40px));margin:-18px auto 40px;padding:0 14px;display:grid;grid-template-columns:minmax(0,var(--mw));justify-content:center;gap:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:20px;box-shadow:0 8px 24px rgba(40,40,100,.08)}
+h2{margin:0 0 14px;font-size:1.1rem}
+.courses{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.course{border:1px solid var(--bd);border-radius:16px;padding:18px;text-align:center;background:var(--card);color:var(--tx);font:inherit;cursor:pointer}
+.course b{display:block;font-size:1.3rem}
+.course small{color:var(--mu)}
+.course.on:hover{border-color:var(--pr);transform:translateY(-2px)}
+.course.off{opacity:.5;cursor:not-allowed}
+.tag{display:inline-block;margin-top:6px;font-size:.75rem;padding:1px 10px;border-radius:99px;background:var(--bd)}
+.on .tag{background:var(--pr);color:#fff}
+.btn{border:0;border-radius:12px;padding:10px 20px;font:inherit;font-weight:600;cursor:pointer;background:var(--pr);color:#fff}
+.btn.sec{background:var(--bd);color:var(--tx)}
+.btn:disabled{opacity:.4;cursor:default}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px}
+#timer{font-weight:800;font-size:1.2rem;font-variant-numeric:tabular-nums;direction:ltr}
+#timer.low{color:var(--no)}
+.bar{height:6px;background:var(--bd);border-radius:9px;overflow:hidden;margin-bottom:16px}
+.bar i{display:block;height:100%;background:var(--pr);width:0;transition:width .3s}
+.q{font-size:1.1rem;font-weight:600;margin-bottom:14px;direction:auto;unicode-bidi:plaintext}
+.opt{display:block;width:100%;text-align:right;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);border-radius:14px;padding:12px 14px;margin-bottom:10px;font:inherit;cursor:pointer;unicode-bidi:plaintext}
+.opt:hover{border-color:var(--pr)}
+.opt.sel{border-color:var(--pr);background:rgba(91,75,255,.1)}
+.nav{display:flex;justify-content:space-between;gap:8px;margin-top:8px}
+.grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.dot{width:32px;height:32px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;font-size:.8rem;cursor:pointer}
+.dot.done{background:var(--pr);color:#fff;border-color:var(--pr)}
+.dot.cur{outline:2px solid var(--pr2)}
+.score{text-align:center;padding:10px 0 18px}
+.score big{display:block;font-size:3rem;font-weight:800}
+.pass{color:var(--ok)}.fail{color:var(--no)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px}
+.rev{border:1px solid var(--bd);border-right:5px solid var(--no);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.rev.ok{border-right-color:var(--ok)}
+.rev p{margin:0 0 6px;font-weight:600;unicode-bidi:plaintext}
+.rev div{font-size:.92rem;unicode-bidi:plaintext}
+.g{color:var(--ok)}.r{color:var(--no)}
+.hide{display:none}
+.ad{margin:14px 0;border:1.5px dashed var(--bd);border-radius:16px;overflow:hidden;display:grid;place-items:center;color:var(--mu);font-size:.85rem;background:var(--card)}
+.ad[data-slot=exam]{aspect-ratio:6/1;min-height:60px}
+.ad[data-slot=home],.ad[data-slot=result]{aspect-ratio:16/6}
+.ad:has(img),.ad:has(video){border:0}
+.ad img,.ad video{width:100%;height:100%;object-fit:cover;display:block}
+.ad a{display:block;width:100%;height:100%}
+.ad[data-slot=left],.ad[data-slot=right]{display:none;margin:0;position:relative}
+.ad[data-slot=left] img,.ad[data-slot=left] video,.ad[data-slot=left] a,.ad[data-slot=right] img,.ad[data-slot=right] video,.ad[data-slot=right] a{position:absolute;inset:0}
+@media (min-width:960px){
+  main{grid-template-columns:var(--w) minmax(0,var(--mw)) var(--w)}
+  .ad[data-slot=left],.ad[data-slot=right]{display:grid}
+}
+.dlg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:50;padding:16px}
+.dlg.hide{display:none}
+footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">جای آیکون</div>
+  <h1>آزمود</h1>
+  <p>آزمون‌های چهارگزینه‌ای، ساده و سریع</p>
+</header>
+
+<main>
+  <div class="ad" data-slot="right"></div>
+  <div class="center">
+  <!-- صفحه اصلی: منوی درس‌ها -->
+  <section id="home" class="card">
+    <h2>درس مورد نظرت را انتخاب کن</h2>
+    <div class="courses">
+      <button class="course on" onclick="startExam('ICDL')"><b>ICDL</b><small>۴۰ سوال · ۲۰ دقیقه</small><br><span class="tag">ورود به آزمون</span></button>
+      <button class="course off" disabled><b>DIPLOMA</b><small>به‌زودی</small><br><span class="tag">غیرفعال</span></button>
+      <button class="course off" disabled><b>PYTHON</b><small>به‌زودی</small><br><span class="tag">غیرفعال</span></button>
+    </div>
+    <div class="ad" data-slot="home"></div>
+  </section>
+
+  <!-- صفحه آزمون -->
+  <section id="exam" class="card hide">
+    <div class="top">
+      <span id="count"></span>
+      <span id="timer">20:00</span>
+      <button class="btn sec" onclick="finish(true)">پایان آزمون</button>
+    </div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="q" id="qtext"></div>
+    <div id="opts"></div>
+    <div class="nav">
+      <button class="btn sec" id="prev" onclick="go(-1)">قبلی</button>
+      <button class="btn" id="next" onclick="go(1)">بعدی</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="ad" data-slot="exam"></div>
+  </section>
+
+  <!-- صفحه نتیجه -->
+  <section id="result" class="card hide">
+    <div class="score"><big id="sc"></big><b id="verdict"></b><div id="sub" style="color:var(--mu)"></div></div>
+    <div class="acts">
+      <button class="btn" onclick="downloadBank()">دانلود بانک سوالات</button>
+      <button class="btn sec" onclick="copyBank()" id="cp">کپی بانک سوالات</button>
+      <button class="btn sec" onclick="goHome()">بازگشت به منو</button>
+    </div>
+    <div class="ad" data-slot="result"></div>
+    <div id="review"></div>
+  </section>
+  </div>
+  <div class="ad" data-slot="left"></div>
+</main>
+<div id="dlg" class="dlg hide"><div class="card" style="max-width:360px;text-align:center">
+  <p id="dlgmsg" style="font-weight:600"></p>
+  <div class="acts" style="margin:0"><button class="btn" onclick="finish(false)">بله، تمام شود</button><button class="btn sec" onclick="$('dlg').classList.add('hide')">ادامه آزمون</button></div>
+</div></div>
+<footer>آزمود</footer>
+
+<script>
+/* ================== بانک سوالات ==================
+   سوال‌های خودت را اینجا اضافه کن. فرمت هر سوال:
+   { q: "متن سوال", o: ["گزینه ۱","گزینه ۲","گزینه ۳","گزینه ۴"], a: 0 }
+   a = شماره گزینه درست (از ۰ شروع می‌شود)
+   هر بار ۴۰ سوال تصادفی از این لیست انتخاب می‌شود. */
+const BANK = {
+  ICDL: [
+    { q: "نمونه ۱: کدام یک از موارد زیر یک سیستم‌عامل است؟", o: ["Windows","Excel","Chrome","Word"], a: 0 },
+    { q: "نمونه ۲: کلید میانبر کپی کردن کدام است؟", o: ["Ctrl+V","Ctrl+C","Ctrl+X","Ctrl+Z"], a: 1 },
+    { q: "نمونه ۳: پسوند فایل‌های ورد کدام است؟", o: [".xlsx",".pptx",".docx",".pdf"], a: 2 },
+    { q: "نمونه ۴: RAM چه نوع حافظه‌ای است؟", o: ["دائمی","موقت","نوری","مغناطیسی"], a: 1 },
+    { q: "نمونه ۵: کدام یک ورودی (Input) است؟", o: ["مانیتور","چاپگر","صفحه‌کلید","بلندگو"], a: 2 },
+    { q: "نمونه ۶: کدام نرم‌افزار صفحه‌گسترده است؟", o: ["Excel","Paint","Notepad","Outlook"], a: 0 }
+  ]
+};
+
+/* ================== تبلیغات ==================
+   هر جایگاه یک لیست است؛ اگر بیش از یکی بگذاری هر ۵ ثانیه عوض می‌شود.
+   type: "image" (عکس، GIF، WebP متحرک) یا "video" (mp4 بی‌صدا و تکرارشونده)
+   link: اختیاری. جایگاه‌ها: home, exam, result, right, left
+   مثال: top: [{ type:"image", src:"banner.gif", link:"https://..." }] */
+const ADS = {
+  home: [], exam: [], result: [],
+  right: [], left: []   /* پوستر کناری (فقط روی صفحه‌های عریض؛ با اسکرول جابه‌جا می‌شوند) */
+};
+function renderAds(){
+  document.querySelectorAll('.ad').forEach(el => {
+    const items = (ADS[el.dataset.slot] || []).filter(x => x.src);
+    if(!items.length){ el.innerHTML = '<span>فضای تبلیغ</span>'; return; }
+    let i = 0;
+    const put = () => {
+      const a = items[i++ % items.length];
+      const m = a.type === 'video' ? '<video src="' + a.src + '" autoplay muted loop playsinline></video>' : '<img src="' + a.src + '" alt="">';
+      el.innerHTML = a.link ? '<a href="' + a.link + '" target="_blank" rel="noopener">' + m + '</a>' : m;
+    };
+    put();
+    if(items.length > 1) setInterval(put, 5000);
+  });
+}
+renderAds();
+
+const EXAM_COUNT = 40, EXAM_SECONDS = 20 * 60;
+let cur = 'ICDL', qs = [], ans = [], idx = 0, left = 0, tm = null;
+const $ = id => document.getElementById(id);
+const fa = n => Number(n).toLocaleString('fa-IR');
+const show = id => ['home','exam','result'].forEach(s => $(s).classList.toggle('hide', s !== id));
+
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function startExam(course){
+  cur = course;
+  const bank = BANK[course] || [];
+  if(!bank.length){ alert('بانک سوالات خالی است.'); return; }
+  qs = shuffle(bank).slice(0, EXAM_COUNT);
+  ans = Array(qs.length).fill(null); idx = 0; left = EXAM_SECONDS;
+  show('exam'); window.scrollTo(0,0); draw(); tick();
+  clearInterval(tm); tm = setInterval(tick, 1000);
+}
+
+function tick(){
+  const m = String(Math.floor(left/60)).padStart(2,'0'), s = String(left%60).padStart(2,'0');
+  $('timer').textContent = m + ':' + s;
+  $('timer').classList.toggle('low', left <= 60);
+  if(left <= 0){ finish(false); return; }
+  left--;
+}
+
+function draw(){
+  const q = qs[idx];
+  $('count').textContent = 'سوال ' + fa(idx+1) + ' از ' + fa(qs.length);
+  $('qtext').textContent = q.q;
+  $('opts').innerHTML = '';
+  q.o.forEach((t,i) => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (ans[idx] === i ? ' sel' : '');
+    b.textContent = fa(i+1) + '. ' + t;
+    b.onclick = () => { ans[idx] = i; draw(); };
+    $('opts').appendChild(b);
+  });
+  $('prev').disabled = idx === 0;
+  $('next').disabled = idx === qs.length-1;
+  $('prog').style.width = (ans.filter(x => x !== null).length / qs.length * 100) + '%';
+  $('grid').innerHTML = '';
+  qs.forEach((_,i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (ans[i] !== null ? ' done' : '') + (i === idx ? ' cur' : '');
+    d.textContent = fa(i+1);
+    d.onclick = () => { idx = i; draw(); };
+    $('grid').appendChild(d);
+  });
+}
+
+function go(d){ idx = Math.max(0, Math.min(qs.length-1, idx+d)); draw(); }
+
+function finish(ask){
+  const blank = ans.filter(x => x === null).length;
+  if(ask){
+    $('dlgmsg').textContent = blank ? fa(blank) + ' سوال بی‌پاسخ مانده. آزمون تمام شود؟' : 'آزمون تمام شود؟';
+    $('dlg').classList.remove('hide');
+    return;
+  }
+  $('dlg').classList.add('hide');
+  clearInterval(tm);
+  const ok = qs.filter((q,i) => ans[i] === q.a).length;
+  const need = Math.min(20, Math.ceil(qs.length/2));
+  const passed = ok >= need;
+  $('sc').textContent = fa(ok) + ' / ' + fa(qs.length);
+  $('verdict').textContent = passed ? 'قبول شدی 🎉' : 'متاسفانه قبول نشدی';
+  $('verdict').className = passed ? 'pass' : 'fail';
+  $('sub').textContent = 'حداقل نمره قبولی: ' + fa(need) + ' · غلط: ' + fa(qs.length-ok-blank) + ' · بی‌پاسخ: ' + fa(blank);
+  $('review').innerHTML = '';
+  qs.forEach((q,i) => {
+    const good = ans[i] === q.a, el = document.createElement('div');
+    el.className = 'rev' + (good ? ' ok' : '');
+    el.innerHTML = '<p></p><div class="y"></div>' + (good ? '' : '<div class="g c"></div>');
+    el.querySelector('p').textContent = fa(i+1) + '. ' + q.q;
+    const y = el.querySelector('.y');
+    y.className = good ? 'g' : 'r';
+    y.textContent = 'پاسخ تو: ' + (ans[i] === null ? 'بدون پاسخ' : q.o[ans[i]]);
+    if(!good) el.querySelector('.c').textContent = 'پاسخ درست: ' + q.o[q.a];
+    $('review').appendChild(el);
+  });
+  show('result'); window.scrollTo(0,0);
+}
+
+function bankJSON(){ return JSON.stringify(BANK[cur] || [], null, 2); }
+
+function downloadBank(){
+  try{
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([bankJSON()], {type:'application/json'}));
+    a.download = cur + '-question-bank.json';
+    document.body.appendChild(a); a.click(); a.remove();
+  }catch(e){ copyBank(); }
+}
+function copyBank(){
+  try{ navigator.clipboard.writeText(bankJSON()).then(() => { $('cp').textContent = 'کپی شد ✓'; }); }catch(e){}
+}
+function goHome(){ $('cp').textContent = 'کپی بانک سوالات'; show('home'); }
+
+window.addEventListener('beforeunload', e => { if(!$('exam').classList.contains('hide')){ e.preventDefault(); e.returnValue=''; } });
+</script>
+</body>
+</html>
