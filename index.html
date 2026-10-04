@@ -93,11 +93,7 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
   <!-- صفحه اصلی: منوی درس‌ها -->
   <section id="home" class="card">
     <h2>درس مورد نظرت را انتخاب کن</h2>
-    <div class="courses">
-      <button class="course on" onclick="startExam('ICDL')"><b>ICDL</b><small>۴۰ سوال · ۲۰ دقیقه</small><br><span class="tag">ورود به آزمون</span></button>
-      <button class="course off" disabled><b>DIPLOMA</b><small>به‌زودی</small><br><span class="tag">غیرفعال</span></button>
-      <button class="course off" disabled><b>PYTHON</b><small>به‌زودی</small><br><span class="tag">غیرفعال</span></button>
-    </div>
+    <div class="courses" id="courses"></div>
     <p id="err" class="r hide" style="text-align:center;margin:12px 0 0"></p>
     <div class="ad" data-slot="home"></div>
   </section>
@@ -150,7 +146,27 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
    سوال‌ها از فایل questions.json کنار همین صفحه خوانده می‌شود
    (خروجی convert_questions.py). فرمت: [{ "q":"..", "o":[4 گزینه], "a":0 }, ...]
    توجه: صفحه باید از روی هاست (http) باز شود، نه مستقیم از file:// */
-const FILES = { ICDL: 'questions.json', DIPLOMA: 'diploma.json', PYTHON: 'python.json' };
+/* لیست درس‌ها: برای فعال کردن یک درس on را true کن و فایل JSON آن را کنار صفحه بگذار */
+const COURSES = [
+  { id: 'ICDL',    title: 'ICDL',                file: 'questions.json', on: true  },
+  { id: 'DIPLOMA', title: 'DIPLOMA',             file: 'diploma.json',   on: true  },
+  { id: 'PYTHON',  title: 'PYTHON',              file: 'python.json',    on: true  },
+  { id: 'GRAPHIC', title: 'طراحی گرافیک رایانه', file: 'graphic.json',   on: true  },
+  { id: 'PHOTO',   title: 'عکاسی دیجیتال',       file: 'photo.json',     on: true  },
+  { id: 'EXCEL',   title: 'اکسل',                file: 'excel.json',     on: true  }
+];
+const FILES = Object.fromEntries(COURSES.map(c => [c.id, c.file]));
+COURSES.forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'course ' + (c.on ? 'on' : 'off');
+  b.disabled = !c.on;
+  if(c.on) b.onclick = () => startExam(c.id);
+  b.innerHTML = '<b></b><small></small><br><span class="tag"></span>';
+  b.querySelector('b').textContent = c.title;
+  b.querySelector('small').textContent = c.on ? '۴۰ سوال · ۲۰ دقیقه' : 'به‌زودی';
+  b.querySelector('.tag').textContent = c.on ? 'ورود به آزمون' : 'غیرفعال';
+  document.getElementById('courses').appendChild(b);
+});
 const BANK = {};
 async function loadBank(course){
   if(BANK[course]) return BANK[course];
