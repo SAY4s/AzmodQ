@@ -37,6 +37,7 @@ h2{margin:0 0 14px;font-size:1.1rem}
 .bar{height:6px;background:var(--bd);border-radius:9px;overflow:hidden;margin-bottom:16px}
 .bar i{display:block;height:100%;background:var(--pr);width:0;transition:width .3s}
 .q{font-size:1.1rem;font-weight:600;margin-bottom:14px;direction:auto;unicode-bidi:plaintext}
+.meta{display:inline-block;margin-bottom:8px;font-size:.78rem;padding:1px 12px;border-radius:99px;background:var(--bd);color:var(--mu)}
 .opt{display:block;width:100%;text-align:right;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);border-radius:14px;padding:12px 14px;margin-bottom:10px;font:inherit;cursor:pointer;unicode-bidi:plaintext}
 .opt:hover{border-color:var(--pr)}
 .opt.sel{border-color:var(--pr);background:rgba(91,75,255,.1)}
@@ -63,6 +64,15 @@ h2{margin:0 0 14px;font-size:1.1rem}
 .dot.g{background:var(--ok);color:#fff;border-color:var(--ok)}
 .dot.b{background:var(--no);color:#fff;border-color:var(--no)}
 #rvopts .opt{cursor:default}
+/* تنظیم آزمون سردفتری */
+.fld{display:block;margin-bottom:14px}
+.fld span{display:block;font-size:.88rem;color:var(--mu);margin-bottom:4px}
+.fld select{width:100%;border:1.5px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);font:inherit;padding:10px 12px}
+.fld select:focus{outline:none;border-color:var(--pr)}
+.chk{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:.92rem;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--pr)}
+.info{background:rgba(91,75,255,.08);border:1px solid var(--bd);border-radius:14px;padding:10px 14px;margin-bottom:14px;font-size:.9rem;text-align:center}
+.info b{color:var(--pr)}
 .ad{margin:14px 0;border:1.5px dashed var(--bd);border-radius:16px;overflow:hidden;display:grid;place-items:center;color:var(--mu);font-size:.85rem;background:var(--card)}
 .ad[data-slot=exam]{aspect-ratio:6/1;min-height:60px}
 .ad[data-slot=home],.ad[data-slot=result]{aspect-ratio:16/6}
@@ -98,6 +108,20 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
     <div class="ad" data-slot="home"></div>
   </section>
 
+  <!-- صفحه تنظیم آزمون سردفتری (انتخاب سال و درس) -->
+  <section id="setup" class="card hide">
+    <h2>آزمون سردفتری</h2>
+    <label class="fld"><span>سال آزمون</span><select id="sy" onchange="onYear()"></select></label>
+    <label class="fld"><span>درس</span><select id="ss" onchange="updSetup()"></select></label>
+    <label class="fld"><span>تعداد سوال</span><select id="sn" onchange="updSetup()"></select></label>
+    <label class="chk"><input type="checkbox" id="so" onchange="updSetup()"> بدون بُر زدن (به ترتیب اصلی سوال‌ها در آزمون)</label>
+    <div class="info" id="sinfo"></div>
+    <div class="acts" style="margin:0">
+      <button class="btn" id="sgo" onclick="startSetup()">شروع آزمون</button>
+      <button class="btn sec" onclick="goHome()">بازگشت به منو</button>
+    </div>
+  </section>
+
   <!-- صفحه آزمون -->
   <section id="exam" class="card hide">
     <div class="top">
@@ -106,6 +130,7 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
       <button class="btn sec" onclick="finish(true)">پایان آزمون</button>
     </div>
     <div class="bar"><i id="prog"></i></div>
+    <div class="meta hide" id="qmeta"></div>
     <div class="q" id="qtext"></div>
     <div id="opts"></div>
     <div class="nav">
@@ -125,6 +150,7 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
     </div>
     <div id="rvbox">
       <div class="top"><b id="rvcount"></b></div>
+      <div class="meta hide" id="rvmeta"></div>
       <div class="q" id="rvq"></div>
       <div id="rvopts"></div>
       <div class="nav"><button class="btn sec" id="rvprev" onclick="goRv(-1)">قبلی</button><button class="btn" id="rvnext" onclick="goRv(1)">بعدی</button></div>
@@ -143,28 +169,31 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
 
 <script>
 /* ================== بانک سوالات ==================
-   سوال‌ها از فایل questions.json کنار همین صفحه خوانده می‌شود
-   (خروجی convert_questions.py). فرمت: [{ "q":"..", "o":[4 گزینه], "a":0 }, ...]
+   سوال‌ها از فایل JSON کنار همین صفحه خوانده می‌شود
+   (خروجی convert_questions.py / convert_sardaftari.py). فرمت: [{ "q":"..", "o":[4 گزینه], "a":0 }, ...]
+   برای آزمون سردفتری هر سوال دو فیلد اضافه هم دارد: "y" (سال) و "s" (درس)
    توجه: صفحه باید از روی هاست (http) باز شود، نه مستقیم از file:// */
-/* لیست درس‌ها: برای فعال کردن یک درس on را true کن و فایل JSON آن را کنار صفحه بگذار */
+/* لیست درس‌ها: برای فعال کردن یک درس on را true کن و فایل JSON آن را کنار صفحه بگذار.
+   setup:true یعنی قبل از شروع، صفحه‌ی انتخاب سال/درس/تعداد نشان داده شود */
 const COURSES = [
   { id: 'ICDL',    title: 'ای سی دی ال',                file: 'questions.json', on: true  },
   { id: 'DIPLOMA', title: 'دیپلم رشته گرافیک',             file: 'diploma.json',   on: true  },
   { id: 'PYTHON',  title: 'پایتون',              file: 'python.json',    on: true  },
   { id: 'GRAPHIC', title: 'طراحی گرافیک رایانه', file: 'graphic.json',   on: true  },
   { id: 'PHOTO',   title: 'عکاسی دیجیتال',       file: 'photo.json',     on: true  },
-  { id: 'EXCEL',   title: 'اکسل',                file: 'excel.json',     on: true  }
+  { id: 'EXCEL',   title: 'اکسل',                file: 'excel.json',     on: true  },
+  { id: 'SARDAFTARI', title: 'آزمون سردفتری',    file: 'sardaftari.json', on: true, setup: true, sub: 'انتخاب سال و درس', tag: 'ورود به تنظیمات' }
 ];
 const FILES = Object.fromEntries(COURSES.map(c => [c.id, c.file]));
 COURSES.forEach(c => {
   const b = document.createElement('button');
   b.className = 'course ' + (c.on ? 'on' : 'off');
   b.disabled = !c.on;
-  if(c.on) b.onclick = () => startExam(c.id);
+  if(c.on) b.onclick = () => c.setup ? openSetup(c.id) : startExam(c.id);
   b.innerHTML = '<b></b><small></small><br><span class="tag"></span>';
   b.querySelector('b').textContent = c.title;
-  b.querySelector('small').textContent = c.on ? '۴۰ سوال · ۲۰ دقیقه' : 'به‌زودی';
-  b.querySelector('.tag').textContent = c.on ? 'ورود به آزمون' : 'غیرفعال';
+  b.querySelector('small').textContent = c.on ? (c.sub || '۴۰ سوال · ۲۰ دقیقه') : 'به‌زودی';
+  b.querySelector('.tag').textContent = c.on ? (c.tag || 'ورود به آزمون') : 'غیرفعال';
   document.getElementById('courses').appendChild(b);
 });
 const BANK = {};
@@ -205,13 +234,17 @@ function renderAds(){
 renderAds();
 
 const EXAM_COUNT = 40, EXAM_SECONDS = 20 * 60;
-let cur = 'ICDL', qs = [], ans = [], idx = 0, left = 0, tm = null;
+let cur = 'ICDL', qs = [], ans = [], idx = 0, left = 0, tm = null, passNeed = 20;
 const $ = id => document.getElementById(id);
 const fa = n => Number(n).toLocaleString('fa-IR');
-const show = id => ['home','exam','result'].forEach(s => $(s).classList.toggle('hide', s !== id));
+const faY = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);   /* سال بدون جداکننده‌ی هزارگان */
+const show = id => ['home','setup','exam','result'].forEach(s => $(s).classList.toggle('hide', s !== id));
+const metaOf = q => [q.y ? 'سردفتری ' + faY(q.y) : '', q.s || ''].filter(Boolean).join(' · ');
+function setMeta(el, q){ const t = metaOf(q); el.textContent = t; el.classList.toggle('hide', !t); }
 
 function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
+/* آزمون معمولی (۴۰ سوال تصادفی، ۲۰ دقیقه) */
 async function startExam(course){
   cur = course;
   const bank = await loadBank(course);
@@ -221,10 +254,68 @@ async function startExam(course){
     err.classList.remove('hide'); return;
   }
   err.classList.add('hide');
-  qs = shuffle(bank).slice(0, EXAM_COUNT);
-  ans = Array(qs.length).fill(null); idx = 0; left = EXAM_SECONDS;
+  const list = shuffle(bank).slice(0, EXAM_COUNT);
+  beginExam(list, EXAM_SECONDS, Math.min(20, Math.ceil(list.length/2)));
+}
+
+function beginExam(list, secs, need){
+  qs = list; passNeed = need;
+  ans = Array(qs.length).fill(null); idx = 0; left = secs;
   show('exam'); window.scrollTo(0,0); draw(); tick();
   clearInterval(tm); tm = setInterval(tick, 1000);
+}
+
+/* ================== آزمون سردفتری: انتخاب سال / درس / تعداد ================== */
+let setupBank = [];
+async function openSetup(course){
+  cur = course;
+  const bank = await loadBank(course);
+  const err = $('err');
+  if(!bank || !bank.length){
+    err.textContent = bank ? 'بانک سوالات خالی است.' : 'فایل ' + FILES[course] + ' پیدا نشد. آن را کنار این صفحه روی هاست بگذار.';
+    err.classList.remove('hide'); return;
+  }
+  err.classList.add('hide');
+  setupBank = bank;
+  const years = [...new Set(bank.map(x => x.y).filter(Boolean))].sort((a,b) => b-a);
+  $('sy').innerHTML = '<option value="">همه سال‌ها</option>' + years.map(y => '<option value="' + y + '">' + faY(y) + '</option>').join('');
+  $('so').checked = false;
+  fillSubjects('');
+  show('setup'); window.scrollTo(0,0);
+}
+const inYear = y => setupBank.filter(x => !y || String(x.y) === y);
+function fillSubjects(keep){
+  const pool = inYear($('sy').value), cnt = new Map();
+  pool.forEach(x => { const s = x.s || 'بدون درس'; cnt.set(s, (cnt.get(s) || 0) + 1); });
+  $('ss').innerHTML = '<option value="">همه درس‌ها (' + fa(pool.length) + ' سوال)</option>' +
+    [...cnt].map(([s,n]) => '<option value="' + s + '">' + s + ' (' + fa(n) + ' سوال)</option>').join('');
+  if(keep && cnt.has(keep)) $('ss').value = keep;
+  updSetup();
+}
+function onYear(){ fillSubjects($('ss').value); }
+function setupPool(){
+  const s = $('ss').value;
+  return inYear($('sy').value).filter(x => !s || (x.s || 'بدون درس') === s);
+}
+function updSetup(){
+  const p = setupPool(), n = p.length, sel = $('sn');
+  const prev = sel.value;
+  const opts = [20, 40, 100].filter(k => k < n).map(k => [String(k), fa(k) + ' سوال']);
+  opts.push(['all', (n ? 'همه‌ی ' + fa(n) : 'همه') + ' سوال']);
+  sel.innerHTML = opts.map(o => '<option value="' + o[0] + '">' + o[1] + '</option>').join('');
+  if(opts.some(o => o[0] === prev)) sel.value = prev; else sel.value = opts.some(o => o[0] === '40') ? '40' : 'all';
+  const cnt = n ? (sel.value === 'all' ? n : +sel.value) : 0;
+  const mins = Math.ceil(cnt * 30 / 60);
+  $('sinfo').innerHTML = n
+    ? 'تعداد سوال: <b>' + fa(cnt) + '</b> · زمان: <b>' + fa(mins) + ' دقیقه</b> (۳۰ ثانیه برای هر سوال) · نمره قبولی: <b>' + fa(Math.ceil(cnt/2)) + '</b>'
+    : 'برای این انتخاب سوالی موجود نیست.';
+  $('sgo').disabled = !n;
+}
+function startSetup(){
+  const p = setupPool(); if(!p.length) return;
+  const v = $('sn').value, n = v === 'all' ? p.length : Math.min(+v, p.length);
+  const list = $('so').checked ? p.slice(0, n) : shuffle(p).slice(0, n);
+  beginExam(list, n * 30, Math.ceil(n/2));
 }
 
 function tick(){
@@ -238,6 +329,7 @@ function tick(){
 function draw(){
   const q = qs[idx];
   $('count').textContent = 'سوال ' + fa(idx+1) + ' از ' + fa(qs.length);
+  setMeta($('qmeta'), q);
   $('qtext').textContent = q.q;
   $('opts').innerHTML = '';
   q.o.forEach((t,i) => {
@@ -272,12 +364,13 @@ function finish(ask){
   $('dlg').classList.add('hide');
   clearInterval(tm);
   const ok = qs.filter((q,i) => ans[i] === q.a).length;
-  const need = Math.min(20, Math.ceil(qs.length/2));
+  const need = passNeed;
   const passed = ok >= need;
   $('sc').textContent = fa(ok) + ' / ' + fa(qs.length);
   $('verdict').textContent = passed ? 'قبول شدی 🎉' : 'متاسفانه قبول نشدی';
   $('verdict').className = passed ? 'pass' : 'fail';
   $('sub').textContent = 'حداقل نمره قبولی: ' + fa(need) + ' · غلط: ' + fa(qs.length-ok-blank) + ' · بی‌پاسخ: ' + fa(blank);
+  $('dl').classList.toggle('hide', cur === 'SARDAFTARI');   /* دکمه‌ی دانلود جزوه فقط برای ICDL است */
   rv = 0; drawReview();
   show('result'); window.scrollTo(0,0);
 }
@@ -286,6 +379,7 @@ let rv = 0;
 function drawReview(){
   const q = qs[rv], u = ans[rv];
   $('rvcount').textContent = 'مرور سوال ' + fa(rv+1) + ' از ' + fa(qs.length) + (u === null ? ' · بدون پاسخ' : u === q.a ? ' · درست ✓' : ' · غلط ✗');
+  setMeta($('rvmeta'), q);
   $('rvq').textContent = q.q;
   $('rvopts').innerHTML = '';
   q.o.forEach((t,i) => {
