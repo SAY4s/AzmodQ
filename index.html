@@ -110,7 +110,7 @@ footer{text-align:center;color:var(--mu);font-size:.8rem;padding-bottom:24px}
 
   <!-- صفحه تنظیم آزمون سردفتری (انتخاب سال و درس) -->
   <section id="setup" class="card hide">
-    <h2>آزمون سردفتری</h2>
+    <h2 id="setupTitle">آزمون</h2>
     <label class="fld"><span>سال آزمون</span><select id="sy" onchange="onYear()"></select></label>
     <label class="fld"><span>درس</span><select id="ss" onchange="updSetup()"></select></label>
     <label class="fld"><span>تعداد سوال</span><select id="sn" onchange="updSetup()"></select></label>
@@ -182,7 +182,8 @@ const COURSES = [
   { id: 'GRAPHIC', title: 'طراحی گرافیک رایانه', file: 'graphic.json',   on: true  },
   { id: 'PHOTO',   title: 'عکاسی دیجیتال',       file: 'photo.json',     on: true  },
   { id: 'EXCEL',   title: 'اکسل',                file: 'excel.json',     on: true  },
-  { id: 'SARDAFTARI', title: 'آزمون سردفتری',    file: 'sardaftari.json', on: true, setup: true, sub: 'انتخاب سال و درس', tag: 'ورود به تنظیمات' }
+  { id: 'SARDAFTARI', title: 'آزمون سردفتری',    file: 'sardaftari.json', on: true, setup: true, sub: 'انتخاب سال و درس', tag: 'ورود به تنظیمات', label: 'سردفتری' },
+  { id: 'VEKALAT', title: 'آزمون وکالت', file: 'vekalat.json', on: true, setup: true, sub: 'انتخاب سال و درس', tag: 'ورود به تنظیمات', label: 'وکالت' }
 ];
 const FILES = Object.fromEntries(COURSES.map(c => [c.id, c.file]));
 COURSES.forEach(c => {
@@ -239,7 +240,8 @@ const $ = id => document.getElementById(id);
 const fa = n => Number(n).toLocaleString('fa-IR');
 const faY = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);   /* سال بدون جداکننده‌ی هزارگان */
 const show = id => ['home','setup','exam','result'].forEach(s => $(s).classList.toggle('hide', s !== id));
-const metaOf = q => [q.y ? 'سردفتری ' + faY(q.y) : '', q.s || ''].filter(Boolean).join(' · ');
+const courseOf = id => COURSES.find(c => c.id === id) || {};
+const metaOf = q => [q.y ? (courseOf(cur).label || '') + ' ' + faY(q.y) : '', q.s || ''].filter(Boolean).join(' · ');
 function setMeta(el, q){ const t = metaOf(q); el.textContent = t; el.classList.toggle('hide', !t); }
 
 function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
@@ -277,6 +279,7 @@ async function openSetup(course){
   }
   err.classList.add('hide');
   setupBank = bank;
+  $('setupTitle').textContent = courseOf(course).title;
   const years = [...new Set(bank.map(x => x.y).filter(Boolean))].sort((a,b) => b-a);
   $('sy').innerHTML = '<option value="">همه سال‌ها</option>' + years.map(y => '<option value="' + y + '">' + faY(y) + '</option>').join('');
   $('so').checked = false;
@@ -370,7 +373,7 @@ function finish(ask){
   $('verdict').textContent = passed ? 'قبول شدی 🎉' : 'متاسفانه قبول نشدی';
   $('verdict').className = passed ? 'pass' : 'fail';
   $('sub').textContent = 'حداقل نمره قبولی: ' + fa(need) + ' · غلط: ' + fa(qs.length-ok-blank) + ' · بی‌پاسخ: ' + fa(blank);
-  $('dl').classList.toggle('hide', cur === 'SARDAFTARI');   /* دکمه‌ی دانلود جزوه فقط برای ICDL است */
+  $('dl').classList.toggle('hide', !!courseOf(cur).setup);   /* دکمه‌ی دانلود جزوه فقط برای ICDL است */
   rv = 0; drawReview();
   show('result'); window.scrollTo(0,0);
 }
