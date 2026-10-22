@@ -183,7 +183,8 @@ const COURSES = [
   { id: 'PHOTO',   title: 'عکاسی دیجیتال',       file: 'photo.json',     on: true  },
   { id: 'EXCEL',   title: 'اکسل',                file: 'excel.json',     on: true  },
   { id: 'SARDAFTARI', title: 'آزمون سردفتری',    file: 'sardaftari.json', on: true, setup: true, sub: 'انتخاب سال و درس', tag: 'ورود به تنظیمات', label: 'سردفتری' },
-  { id: 'VEKALAT', title: 'آزمون وکالت', file: 'vekalat.json', on: true, setup: true, sub: 'انتخاب سال و درس', tag: 'ورود به تنظیمات', label: 'وکالت' }
+  { id: 'VEKALAT', title: 'آزمون وکالت', file: 'vekalat.json', on: true, setup: true, sub: 'انتخاب سال و درس', tag: 'ورود به تنظیمات', label: 'وکالت' },
+  { id: 'ARSHAD', title: 'کنکور ارشد حقوق', file: 'arshad.json', on: true, setup: true, sub: 'انتخاب سال و درس', tag: 'ورود به تنظیمات', label: 'ارشد' }
 ];
 const FILES = Object.fromEntries(COURSES.map(c => [c.id, c.file]));
 COURSES.forEach(c => {
